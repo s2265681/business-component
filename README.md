@@ -95,12 +95,10 @@ output:{
 ```
 
 > npm run server  就可以执行起来了， 最简单的react环境就搭建好了
-
 > 最终项目结构
- ![webpack](https://github.com/s2265681/react-webpack.git)
-
+ ![webpack](https://blog.rockshang.cn/WechatIMG207.png)
 
 > 项目代码
   
  github 链接 ： 
-  * [点击]()
+  * [点击跳转](https://github.com/s2265681/react-webpack.git)
