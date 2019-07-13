@@ -1,14 +1,22 @@
 {
-    "presets": ["react", "es2015"],
+    "presets": ["react", "es2015","stage-0"],
     "env": {
       "dev": {
-          "plugins": [["react-transform", {
+          "plugins": [
+            ["react-transform", {
              "transforms": [{
                "transform": "react-transform-hmr",
                "imports": ["react"],
                "locals": ["module"]
              }]
-          }]]
-      }
+          }],
+          ["import", { 
+            "libraryName": "antd",
+             "libraryDirectory": "es", 
+             "style": "css" }
+            ],
+          ["react-hot-loader/babel"]
+        ]
+      },
     }
   }
