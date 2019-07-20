@@ -1,24 +1,38 @@
 import React from 'react'
 import { render } from 'react-dom'
-import 'antd/dist/antd.css';
+import 'antd/dist/antd.css'
+import {Card} from "antd"
 
 import BasicForm from "./component/basicForm"
+import BasicTable from "./component/BasicTable"
 
 class Hello extends React.Component {
-     state={
-        moreSearch:false
+     constructor(props) {
+        super(props);
+        this.state={
+            selectedRowKeys:[],
+            moreSearch:false    // 展示打开搜索栏
+         }
+      }
+    
+     componentDidMount(){
      }
 
-    submit=(info)=>{
-        console.log(info)
+     componentWillReceiveProps(last,next){
+        console.log(last,next)
     }
 
+
+   /***
+    * 表单
+    */
+   // 打开隐藏表单
     exportExport=()=>{
         this.setState({
             moreSearch:!this.state.moreSearch
         })
     }
-    
+   // 表单字段
     formList=()=>{
         const formList=[{
             type:"Time",
@@ -51,7 +65,7 @@ class Hello extends React.Component {
         return formList
         
     }
-
+   // 展开表单字段
     extendFormList=()=>{
         const extendFormList=[{
             type:"Time",
@@ -61,7 +75,7 @@ class Hello extends React.Component {
             placeholder:'请输入电影名',
             width:'200px',
             label:'电影',
-            field:'artical',
+            field:'movies',
         },{
             type:"SELECT",
             placeholder:'请选择电影',
@@ -82,16 +96,96 @@ class Hello extends React.Component {
         }]
         return extendFormList
     }
+   // 提交表单
+    submit=(info)=>{
+        console.log(info)
+    }
+    /***
+    * 表格
+    */
+   // 表单列表
+      tableColumns=()=>{
+            const columns = [
+                {
+                  title: '姓名',
+                  dataIndex: 'name',
+                  key: 'name',
+                },
+                {
+                  title: '年龄',
+                  dataIndex: 'age',
+                  key: 'age',
+                },
+                {
+                  title: '住址',
+                  dataIndex: 'address',
+                  key: 'address',
+                },
+              ];
+          return columns
+      }
+   // 表单数据 掉接口获取   
+       tableData=()=>{
+        const dataSource = [
+            {
+              id: '1',
+              name: '胡彦斌',
+              age: 32,
+              address: '西湖区湖底公园1号',
+            },
+            {
+              id: '2',
+              name: '胡彦祖',
+              age: 42,
+              address: '西湖区湖底公园1号',
+            },
+          ];
+          return dataSource
+       }
+
+    onRef=(selectedRowKeys,selectedRows,selectedIds)=>{
+        console.log(selectedRowKeys,selectedRows,selectedIds)
+            this.setState({
+                selectedRowKeys,
+                selectedRows,
+                selectedIds
+            })
+    }
+      
 
     render() {
+        const p = this;
+        console.log(this.state,'thistable') 
+         const { selectedRowKeys } = this.state;
+         const paginationProps = {
+          // total,
+          // defaultPageSize: 10,
+          // pageSize,
+          // current: pageNo,
+          // onChange(pageIndex) {
+          //   p.handleSearch(params, pageIndex);
+          // },
+        };
        return (
            <div>
-               <BasicForm 
-                formList={this.formList()} 
-                extendFormList={this.extendFormList()} 
-                moreSearch={this.state.moreSearch}
-                changeExport={this.exportExport}
-                filterSubmit={this.submit} />
+               <Card>
+                    <BasicForm 
+                        formList={this.formList()} 
+                        extendFormList={this.extendFormList()} 
+                        moreSearch={this.state.moreSearch}
+                        changeExport={this.exportExport}
+                        filterSubmit={this.submit} />
+                </Card>
+                <Card>
+                    <BasicTable
+                         onRef={this.onRef}
+                         selectedRowKeys={selectedRowKeys}
+                        columns={this.tableColumns()} 
+                        data={this.tableData()}
+                        selectionType={'checkbox'}   // 'checkbox' || null || 'radio' 默认
+                        // pagination={paginationProps}  // 分页
+                        />
+                </Card>
            </div>
         )
     }

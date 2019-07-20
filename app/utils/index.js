@@ -6,7 +6,9 @@ export default {
   formateDate(time) {
     if (!time) return '';
     const date = new Date(time);
-    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+    const month = date.getMonth() <9? `0${date.getMonth()+1}`:date.getMonth()+1
+    const data = date.getDate() <10? `0${date.getDate()}`:date.getDate()
+    return `${date.getFullYear()}-${month}-${data}`;
   },
   getOptionList(data, name) {
     if (!data) {
@@ -53,26 +55,18 @@ export default {
     });
     return options;
   },
-  /**
-   * ETable 行点击通用函数
-   * @param {*选中行的索引} selectedRowKeys
-   * @param {*选中行对象} selectedItem
-   */
-  updateSelectedItem(selectedRowKeys, selectedRows, selectedIds, selectedItemIds) {
-    if (selectedIds) {
-      this.setState({
-        selectedRowKeys,
-        selectedIds,
-        selectedItem: selectedRows,
-        selectedItemIds,
-      });
-    } else {
-      this.setState({
-        selectedRowKeys,
-        selectedItem: selectedRows,
-        selectedItemIds,
-      });
-    }
-  }
+ 
+  pagination(data, callback) {
+    return {
+      onChange: current => {
+        callback(current);
+      },
+      current: data.result.page,
+      pageSize: data.result.page_size,
+      total: data.result.total_count,
+      showTotal: () => `共${data.result.total_count}条`,
+      showQuickJumper: true,
+    };
+  },
 
 };
