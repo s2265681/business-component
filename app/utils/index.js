@@ -38,7 +38,7 @@ export default {
       return '';
     });
 
-    return radioOtion;
+    return radioOtiruon;
   },
   getCheckboxList(data) {
     if (!data) {
@@ -69,4 +69,12 @@ export default {
     };
   },
 
+  stopPropagation(e){
+    e=e||window.event;
+    if(e.stopPropagation){
+      e.stopPropagation();  // W3C
+    }else{
+      e.cancelBubble=true;  // IE
+    }
+  }
 };

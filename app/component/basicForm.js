@@ -171,6 +171,34 @@ class BasicForm extends React.Component {
                : '收起'
              : ''}
          </a>
+         {this.props.nameList.map(item => {
+          const domlist = [];
+           if (item === 'add') {
+            domlist.push(
+              <Button
+                key={item}
+                type="primary"
+                style={{ margin: '0 0 0 50px' }}
+                onClick={this.props.handleAdd}
+              >
+                新增
+              </Button>
+            );
+          } else if (item === 'patch') {
+            domlist.push(
+              <Popconfirm title="确定删除？" onConfirm={this.pitchDelete}>
+                <Button
+                  key={item}
+                  disabled={!(selectedRowKeys && selectedRowKeys.length > 0)}
+                  type="primary"
+                >
+                  删除
+                </Button>
+              </Popconfirm>
+            );
+          }
+          return domlist;
+        })}
        </FormItem>
     </Form>;
   }
