@@ -9,6 +9,10 @@ import {
   Modal,
   Radio,
   TreeSelect,
+  Upload,
+  Icon,
+  Row,
+  message
 } from 'antd';
 import Utils from "../utils";
 const { TextArea } = Input;
@@ -46,6 +50,61 @@ class BasicModal extends React.Component {
     const p = this;
     const { getFieldDecorator } = p.props.form;
     const { modalFormList,detail } = this.props;
+    // const uploadButton = (
+    //   <div>
+    //     <Icon type={this.state.loading ? 'loading' : 'plus'} />
+    //     <div className="ant-upload-text">Upload</div>
+    //   </div>
+    // );
+    const uploadProps = {
+      action: 'http://127.0.0.1:2918/api/blog/uploadfile',
+      listType: 'picture-card',
+      data(file) {
+        return {
+          pic: file.name,
+        };
+      },
+      // name:'pic',
+      beforeUpload(file) {
+        const isImg =
+          file.type === 'image/jpeg' ||
+          file.type === 'image/bmp' ||
+          file.type === 'image/gif' ||
+          file.type === 'image/png';
+        const isLt3M = file.size / 1024 / 1024 < 3;
+        if (!isImg) {
+          message.error('请上传图片文件');
+        }
+        if (!isLt3M) {
+          message.error('照片大小必须小于3M,请重新上传');
+        }
+        return isImg && isLt3M;
+      },
+      onPreview(file) {
+        p.setState({
+          previewVisible: true,
+          previewImage: file.url || file.thumbUrl,
+        });
+      },
+      onChange(info) {
+        p.setState({ picList: info.fileList });
+        if (info.file.status === 'done') {
+          if (info.file.response && info.file.response.code === 200) {
+            message.success(`${info.file.name} 成功上传`);
+            // 添加文件预览
+            // const newFile = info.file;
+            // newFile.url = info.file.response.data;
+          } else {
+            message.error(
+              `${info.file.name} 解析失败：${info.file.response.msg ||
+                info.file.response.errorMsg}`
+            );
+          }
+        } else if (info.file.status === 'error') {
+          message.error(`${info.file.name} 上传失败`);
+        }
+      },
+    };
     console.log(detail,'detail++++')
     const formItemList = [];
     if (modalFormList && modalFormList.length > 0) {
@@ -110,7 +169,63 @@ class BasicModal extends React.Component {
             </FormItem>
           );
           formItemList.push(INPUT);
-        } else if (item.type === 'TEXTAREA') {
+        }  
+        // else if (item.type === 'UPLOAD') {
+        //   const UPLOAD = (
+        //     <FormItem label={label} key={field} style={style} {...formItemLayout}>
+        //       {detail?initialValue:getFieldDecorator(`${field}`, {
+        //         rules: rulesType,
+        //         initialValue,
+        //       })( 
+        //         <Upload
+        //           name="avatar"
+        //           listType="picture-card"
+        //           className="avatar-uploader"
+        //           showUploadList={false}
+        //           action="http://127.0.0.1:2918/api/blog/uploadfile"
+        //           // beforeUpload={beforeUpload}
+        //           onChange={this.props.handlePicChange}
+        //       >
+        //         {this.props.imageUrl ? <img src={this.props.imageUrl} alt="avatar" /> : uploadButton}
+        //       </Upload>)}
+        //     </FormItem>
+        //   );
+        //   formItemList.push(UPLOAD);
+        // } 
+        else if (item.type === 'UPLOAD') {
+          const UPLOAD = (
+            <Row>
+              <FormItem
+                label={label}
+                key={field}
+                style={{ width: '100%' }}
+                labelCol={{ span: 2 }}
+                wrapperCol={{ span: 22 }}
+              >
+                {getFieldDecorator(`${field}`, {
+                  initialValue,
+                  valuePropName: 'fileList',
+                  getValueFromEvent(e) {
+                    if (!e || !e.fileList) {
+                      return e;
+                    }
+                    const { fileList } = e;
+                    return fileList;
+                  },
+                })(
+                  <Upload {...uploadProps}>
+                      <div>
+                        <Icon type="plus" className="uploadPlus" />
+                        <div className="ant-upload-text">上传图片</div>
+                      </div>
+                  </Upload>
+                )}
+              </FormItem>
+            </Row>
+          );
+          formItemList.push(UPLOAD);
+      }
+        else if (item.type === 'TEXTAREA') {
           const  TEXTAREA = (
              <FormItem label={label} key={field} style={style} {...formItemLayout}>
               {detail?initialValue:getFieldDecorator(`${field}`, {

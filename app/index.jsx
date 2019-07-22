@@ -20,7 +20,8 @@ class Hello extends React.Component {
       modalVisible: false,
       data: [],
       everyData: {},
-      detail: false
+      detail: false,
+      imageUrl:''
     };
   }
 
@@ -199,6 +200,17 @@ class Hello extends React.Component {
     const p = this;
     const columns = [
       {
+        title: "图片",
+        dataIndex: "image",
+        key: "image",
+        render(t){
+          if(!t)return
+          return(
+             <img src={t} style={{width:'100px'}} alt=""  />
+          )
+        }
+      },
+      {
         title: "序号",
         dataIndex: "id",
         key: "id"
@@ -317,6 +329,14 @@ class Hello extends React.Component {
         width: "90%",
         initialValue: data.title
       },
+      // {
+      //   type: "UPLOAD",
+      //   label: "图片",
+      //   field: "image",
+      //   placeholder: "请输入文章名称",
+      //   width: "90%",
+      //   initialValue: data.image
+      // },
       {
         type: "INPUT",
         label: "作者",
@@ -372,6 +392,12 @@ class Hello extends React.Component {
     this.modalRef = ref;
   };
 
+
+  // pic change
+  handlePicChange=(e)=>{
+    console.log(e)
+  }
+
   render() {
     const p = this;
     const { selectedRowKeys, data, everyData, detail } = this.state;
@@ -406,6 +432,7 @@ class Hello extends React.Component {
             selectedRowKeys={selectedRowKeys}
             columns={this.tableColumns()}
             data={data}
+            style={{ textAlign: 'center' }}
             selectionType={"checkbox"} // 'checkbox' || null || 'radio' 默认
             // pagination={paginationProps}  // 分页
           />
@@ -426,6 +453,8 @@ class Hello extends React.Component {
             this.modalRef.props.form.resetFields();
           }}
           title={this.state.title}
+          handlePicChange={this.handlePicChange}
+          imageUrl={this.state.imageUrl}
         />
       </div>
     );
