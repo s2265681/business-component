@@ -11,11 +11,12 @@ import {
   TreeSelect,
 } from 'antd';
 import Utils from "../utils";
+const { TextArea } = Input;
 
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
 
-class ModalBaseForm extends React.Component {
+class BasicModal extends React.Component {
   state = {};
 
   componentDidMount() {
@@ -44,7 +45,8 @@ class ModalBaseForm extends React.Component {
   initFormList = () => {
     const p = this;
     const { getFieldDecorator } = p.props.form;
-    const { modalFormList } = this.props;
+    const { modalFormList,detail } = this.props;
+    console.log(detail,'detail++++')
     const formItemList = [];
     if (modalFormList && modalFormList.length > 0) {
       modalFormList.forEach(item => {
@@ -61,6 +63,7 @@ class ModalBaseForm extends React.Component {
         const { width } = item;
         const { style } = item;
         const { name } = item;
+        const {disabled} = item;
         const formItemLayout = {
           labelCol: {
             xs: { span: 24 },
@@ -98,14 +101,32 @@ class ModalBaseForm extends React.Component {
         } else if (item.type === 'INPUT') {
           const INPUT = (
             <FormItem label={label} key={field} style={style} {...formItemLayout}>
-              {getFieldDecorator(`${field}`, {
+              {detail?initialValue:getFieldDecorator(`${field}`, {
                 rules: rulesType,
                 initialValue,
-              })(<Input type="text" style={{ width }} placeholder={placeholder} />)}
+              })( 
+                <Input  type="text" disabled={disabled||false} style={{ width }} placeholder={placeholder} />)}
               {dom}
             </FormItem>
           );
           formItemList.push(INPUT);
+        } else if (item.type === 'TEXTAREA') {
+          const  TEXTAREA = (
+             <FormItem label={label} key={field} style={style} {...formItemLayout}>
+              {detail?initialValue:getFieldDecorator(`${field}`, {
+                rules: rulesType,
+                initialValue,
+              })(
+                <TextArea
+                    autosize={{ minRows: 5}}
+                    style={{ width }} placeholder={placeholder}
+                  />
+                )
+              }
+              {dom}
+            </FormItem>
+          );
+          formItemList.push(TEXTAREA);
         } else if (item.type === 'SELECT') {
           const SELECT = (
             <FormItem label={label} key={field} {...formItemLayout}>
@@ -210,7 +231,8 @@ class ModalBaseForm extends React.Component {
 
   render() {
     const p = this;
-    const { visible, title } = this.props;
+    const { visible, title, detail } = this.props;
+    console.log(detail,'detail')
     const modalProps = {
       title,
       visible,
@@ -231,4 +253,4 @@ class ModalBaseForm extends React.Component {
     );
   }
 }
-export default Form.create({})(ModalBaseForm);
+export default Form.create({})(BasicModal);
