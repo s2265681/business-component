@@ -51,7 +51,6 @@ class BasicTable extends React.Component {
   onRowClick = (record, index) => {
     const { selectedRowKeys, selectionType } = this.props;
     let i = selectedRowKeys.indexOf(index);
-    console.log(i,'ii')
     let selectedIds = [];
     if(selectionType===null||selectionType===false){
         return

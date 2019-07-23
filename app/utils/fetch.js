@@ -19,7 +19,6 @@ export function get(url){
         }
 
     }).then(function(data){
-        // console.log(data,'data')
         return data
     }).catch(function(err){
       console.log(err,'err')   // 错误处理
@@ -53,12 +52,10 @@ export function post(url,paramsObj) {
         body: objParams(paramsObj)
         // body: "id=26"
     }).then(function(response){
-        console.log(response,'response-------')
        if(response.status==200){
            return response.json()
        }
    }).then(function(data){
-       console.log(data,'data')
        return data
    }).catch(function(err){
      console.log(err,'err')   // 错误处理

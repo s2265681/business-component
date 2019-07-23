@@ -69,7 +69,7 @@ class Hello extends React.Component {
 
   // 新增
   hangleAddList = paramsObj => {
-    paramsObj.image = "http://bl.7yue.pro/images/movie.8.png";
+    // paramsObj.image = "http://bl.7yue.pro/images/movie.8.png";
     const result = post(`${config()}/api/blog/new`, paramsObj);
     result.then(res => {
       if (res.data) {
@@ -83,7 +83,7 @@ class Hello extends React.Component {
 
   // 修改
   hangleUpdateList = (paramsObj, id) => {
-    paramsObj.image = "http://bl.7yue.pro/images/movie.8.png";
+    // paramsObj.image = "http://bl.7yue.pro/images/movie.8.png";
     const result = post(`${config()}/api/blog/update?id=${id}`, paramsObj);
     result.then(res => {
       if (res.code === 200) {
@@ -190,7 +190,6 @@ class Hello extends React.Component {
   };
   // 搜索表单
   submit = info => {
-    console.log(info, "search");
     this.initList(info);
   };
 
@@ -203,10 +202,10 @@ class Hello extends React.Component {
         title: "图片",
         dataIndex: "image",
         key: "image",
-        render(t){
+        render(t,r){
           if(!t)return
           return(
-             <img src={t} style={{width:'100px'}} alt=""  />
+             <img src={t}  key={r.id} style={{width:'100px',height:'100px'}} alt=""  />
           )
         }
       },
@@ -286,11 +285,8 @@ class Hello extends React.Component {
   /**操作modal----------------------------------------- */
   // 打开modal，判断是修改还是新增，修改通过掉回显信息的接口，新增不调接口
   handleModal = (id, type, e) => {
-    console.log(id, e, type, "type");
-    // console.log(e,'e')
     this.stopPropagation(e);
     if (id) {
-      //  console.log('update')
       this.handleChange(id);
       if (type === "detail") {
         this.setState({
@@ -305,7 +301,6 @@ class Hello extends React.Component {
         modalVisible: true
       });
     } else {
-      console.log("add");
       this.setState({
         title: "新增",
         modalVisible: true
@@ -328,15 +323,16 @@ class Hello extends React.Component {
         placeholder: "请输入文章名称",
         width: "90%",
         initialValue: data.title
+
       },
-      // {
-      //   type: "UPLOAD",
-      //   label: "图片",
-      //   field: "image",
-      //   placeholder: "请输入文章名称",
-      //   width: "90%",
-      //   initialValue: data.image
-      // },
+      {
+        type: "UPLOAD",
+        label: "图片",
+        field: "image",
+        placeholder: "请输入文章名称",
+        width: "90%",
+        initialValue: data.image
+      },
       {
         type: "INPUT",
         label: "作者",
@@ -395,7 +391,6 @@ class Hello extends React.Component {
 
   // pic change
   handlePicChange=(e)=>{
-    console.log(e)
   }
 
   render() {
@@ -433,6 +428,7 @@ class Hello extends React.Component {
             columns={this.tableColumns()}
             data={data}
             style={{ textAlign: 'center' }}
+            key={(r,index)=>index}
             selectionType={"checkbox"} // 'checkbox' || null || 'radio' 默认
             // pagination={paginationProps}  // 分页
           />

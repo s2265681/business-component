@@ -15,13 +15,17 @@ import {
   message
 } from 'antd';
 import Utils from "../utils";
+import config from "../utils/setting";
+
 const { TextArea } = Input;
 
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
 
 class BasicModal extends React.Component {
-  state = {};
+  state = {
+    showIcon:true
+  };
 
   componentDidMount() {
     this.props.onRef(this);
@@ -57,7 +61,7 @@ class BasicModal extends React.Component {
     //   </div>
     // );
     const uploadProps = {
-      action: 'http://127.0.0.1:2918/api/blog/uploadfile',
+      action: `${config()}/api/blog/uploadfile`,
       listType: 'picture-card',
       data(file) {
         return {
@@ -87,7 +91,13 @@ class BasicModal extends React.Component {
         });
       },
       onChange(info) {
-        p.setState({ picList: info.fileList });
+        let filename = info.fileList[0].response&&info.fileList[0].response.data&&info.fileList[0].response.data.filename;
+        p.setState({ picList: filename });
+        if(info.fileList.length>0){
+            p.setState({
+              showIcon:false
+            })
+        }
         if (info.file.status === 'done') {
           if (info.file.response && info.file.response.code === 200) {
             message.success(`${info.file.name} 成功上传`);
@@ -105,7 +115,6 @@ class BasicModal extends React.Component {
         }
       },
     };
-    console.log(detail,'detail++++')
     const formItemList = [];
     if (modalFormList && modalFormList.length > 0) {
       modalFormList.forEach(item => {
@@ -169,29 +178,7 @@ class BasicModal extends React.Component {
             </FormItem>
           );
           formItemList.push(INPUT);
-        }  
-        // else if (item.type === 'UPLOAD') {
-        //   const UPLOAD = (
-        //     <FormItem label={label} key={field} style={style} {...formItemLayout}>
-        //       {detail?initialValue:getFieldDecorator(`${field}`, {
-        //         rules: rulesType,
-        //         initialValue,
-        //       })( 
-        //         <Upload
-        //           name="avatar"
-        //           listType="picture-card"
-        //           className="avatar-uploader"
-        //           showUploadList={false}
-        //           action="http://127.0.0.1:2918/api/blog/uploadfile"
-        //           // beforeUpload={beforeUpload}
-        //           onChange={this.props.handlePicChange}
-        //       >
-        //         {this.props.imageUrl ? <img src={this.props.imageUrl} alt="avatar" /> : uploadButton}
-        //       </Upload>)}
-        //     </FormItem>
-        //   );
-        //   formItemList.push(UPLOAD);
-        // } 
+        } 
         else if (item.type === 'UPLOAD') {
           const UPLOAD = (
             <Row>
@@ -201,9 +188,10 @@ class BasicModal extends React.Component {
                 style={{ width: '100%' }}
                 labelCol={{ span: 2 }}
                 wrapperCol={{ span: 22 }}
+                {...formItemLayout}
               >
-                {getFieldDecorator(`${field}`, {
-                  initialValue,
+                { detail? <img src = {initialValue} alt="" style={{width:'100px',height:'100px'}}/>:getFieldDecorator(`${field}`, {
+                  // initialValue,
                   valuePropName: 'fileList',
                   getValueFromEvent(e) {
                     if (!e || !e.fileList) {
@@ -219,6 +207,10 @@ class BasicModal extends React.Component {
                         <div className="ant-upload-text">上传图片</div>
                       </div>
                   </Upload>
+                  // {imageUrl ? <img src={imageUrl} alt="avatar" /> : uploadButton}
+
+                  // <img src = {initialValue} alt="" style={{width:'1/00px',h}}/>
+                 
                 )}
               </FormItem>
             </Row>
@@ -339,6 +331,7 @@ class BasicModal extends React.Component {
       if (err) {
         return;
       }
+      this.state.picList?values.image = this.state.picList : []
       p.props.submit(values);
     //   form.resetFields();
     });
@@ -347,7 +340,6 @@ class BasicModal extends React.Component {
   render() {
     const p = this;
     const { visible, title, detail } = this.props;
-    console.log(detail,'detail')
     const modalProps = {
       title,
       visible,
