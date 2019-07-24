@@ -24,7 +24,8 @@ const RadioGroup = Radio.Group;
 
 class BasicModal extends React.Component {
   state = {
-    showIcon:true
+    showIcon:true,
+    fileList:[]
   };
 
   componentDidMount() {
@@ -92,16 +93,19 @@ class BasicModal extends React.Component {
         if(info.file.status==="removed"){
           p.setState({
             fileList: [],
-            // showIcon:true
+            showIcon:false
           });
           return
         }
 
         let filename = info.fileList[0].response&&info.fileList[0].response.data&&info.fileList[0].response.data.filename;
         p.setState({ fileList: filename });
+        console.log(filename,'filename')
+        console.log(info,'info')
         if(info.fileList.length>0){
             p.setState({
-              showIcon:false
+              showIcon:true,
+              fileList:info.fileList
             })
         }
         if (info.file.status === 'done') {
@@ -132,13 +136,12 @@ class BasicModal extends React.Component {
         const rulesType = rules || [{ required: true, message: `${label}必填` }];
         const initialValue = item.initialValue || undefined;
        
-        
         let showAdd = false;
-        if (initialValue instanceof Array&& initialValue.length < 1) showAdd = true;
-        if (this.state.fileList&&this.state.fileList.length < 1 && !initialValue) showAdd = true;
-        if (this.state.fileList&&this.state.fileList.length < 1) showAdd = true;
+        if(initialValue&&initialValue instanceof Array){
+            if(initialValue.length===1&&this.state.fileList&&this.state.fileList.length===0&&!this.state.showIcon)showAdd=true
+            if(initialValue.length===0&&this.state.fileList&&this.state.fileList.length===0)showAdd=true
+        }
 
-        // const {validator} = item
         const { placeholder } = item;
         const { width } = item;
         const { style } = item;
@@ -202,7 +205,7 @@ class BasicModal extends React.Component {
                 wrapperCol={{ span: 22 }}
                 {...formItemLayout}
               >
-                { detail? <img src = {initialValue} alt="" style={{width:'100px',height:'100px'}}/>:getFieldDecorator(`${field}`, {
+                { detail? <img src = {initialValue&&initialValue[0]&&initialValue[0].url} alt="" style={{width:'100px',height:'100px'}}/>:getFieldDecorator(`${field}`, {
                   initialValue,
                   valuePropName: 'fileList',
                   getValueFromEvent(e) {   // 把控件chenge的参数作为值
@@ -220,10 +223,6 @@ class BasicModal extends React.Component {
                         </div>
                       }
                   </Upload>
-                  // {imageUrl ? <img src={imageUrl} alt="avatar" /> : uploadButton}
-                  
-                  // <img src = {initialValue} alt="" style={{width:'1/00px',h}}/>
-                 
                 )}
               </FormItem>
             </Row>
