@@ -315,6 +315,12 @@ class Hello extends React.Component {
 
   // modal 列表，选择内容区
   modalFormList = data => {
+    // 处理一下回显图片格式 ： [url:'',uid:'']  
+    // const data = new Data
+    const uidTime = (new Date()).getTime();
+    const picImg = data.image || ''
+    const picList = [];
+    picImg?picList.push({url:picImg,uid:uidTime}):[]
     const modalFormList = [
       {
         type: "INPUT",
@@ -329,9 +335,9 @@ class Hello extends React.Component {
         type: "UPLOAD",
         label: "图片",
         field: "image",
-        placeholder: "请输入文章名称",
+        placeholder: "请输入图片",
         width: "90%",
-        initialValue: data.image
+        initialValue: picList||[]
       },
       {
         type: "INPUT",

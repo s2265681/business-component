@@ -54,12 +54,7 @@ class BasicModal extends React.Component {
     const p = this;
     const { getFieldDecorator } = p.props.form;
     const { modalFormList,detail } = this.props;
-    // const uploadButton = (
-    //   <div>
-    //     <Icon type={this.state.loading ? 'loading' : 'plus'} />
-    //     <div className="ant-upload-text">Upload</div>
-    //   </div>
-    // );
+
     const uploadProps = {
       action: `${config()}/api/blog/uploadfile`,
       listType: 'picture-card',
@@ -67,6 +62,8 @@ class BasicModal extends React.Component {
         return {
           pic: file.name,
         };
+      },
+      onRemove(file) {
       },
       // name:'pic',
       beforeUpload(file) {
@@ -91,8 +88,17 @@ class BasicModal extends React.Component {
         });
       },
       onChange(info) {
+        // 删除
+        if(info.file.status==="removed"){
+          p.setState({
+            fileList: [],
+            // showIcon:true
+          });
+          return
+        }
+
         let filename = info.fileList[0].response&&info.fileList[0].response.data&&info.fileList[0].response.data.filename;
-        p.setState({ picList: filename });
+        p.setState({ fileList: filename });
         if(info.fileList.length>0){
             p.setState({
               showIcon:false
@@ -102,12 +108,12 @@ class BasicModal extends React.Component {
           if (info.file.response && info.file.response.code === 200) {
             message.success(`${info.file.name} 成功上传`);
             // 添加文件预览
-            // const newFile = info.file;
-            // newFile.url = info.file.response.data;
+            const newFile = info.file;
+            newFile.url = info.file.response.data;
           } else {
             message.error(
-              `${info.file.name} 解析失败：${info.file.response.msg ||
-                info.file.response.errorMsg}`
+              `${info.file.name} 解析失败：${info.file.response&&info.file.response.msg ||
+                info.file&&info.file.response.errorMsg}`
             );
           }
         } else if (info.file.status === 'error') {
@@ -124,8 +130,14 @@ class BasicModal extends React.Component {
         const { rules } = item;
         const { dom } = item;
         const rulesType = rules || [{ required: true, message: `${label}必填` }];
-
         const initialValue = item.initialValue || undefined;
+       
+        
+        let showAdd = false;
+        if (initialValue instanceof Array&& initialValue.length < 1) showAdd = true;
+        if (this.state.fileList&&this.state.fileList.length < 1 && !initialValue) showAdd = true;
+        if (this.state.fileList&&this.state.fileList.length < 1) showAdd = true;
+
         // const {validator} = item
         const { placeholder } = item;
         const { width } = item;
@@ -191,9 +203,9 @@ class BasicModal extends React.Component {
                 {...formItemLayout}
               >
                 { detail? <img src = {initialValue} alt="" style={{width:'100px',height:'100px'}}/>:getFieldDecorator(`${field}`, {
-                  // initialValue,
+                  initialValue,
                   valuePropName: 'fileList',
-                  getValueFromEvent(e) {
+                  getValueFromEvent(e) {   // 把控件chenge的参数作为值
                     if (!e || !e.fileList) {
                       return e;
                     }
@@ -201,14 +213,15 @@ class BasicModal extends React.Component {
                     return fileList;
                   },
                 })(
-                  <Upload {...uploadProps}>
-                      <div>
-                        <Icon type="plus" className="uploadPlus" />
+                 <Upload {...uploadProps}>
+                      {showAdd&&<div>
+                      <Icon type="plus" className="uploadPlus" />
                         <div className="ant-upload-text">上传图片</div>
-                      </div>
+                        </div>
+                      }
                   </Upload>
                   // {imageUrl ? <img src={imageUrl} alt="avatar" /> : uploadButton}
-
+                  
                   // <img src = {initialValue} alt="" style={{width:'1/00px',h}}/>
                  
                 )}
@@ -331,9 +344,8 @@ class BasicModal extends React.Component {
       if (err) {
         return;
       }
-      this.state.picList?values.image = this.state.picList : []
+      this.state.fileList?values.image = this.state.fileList : []
       p.props.submit(values);
-    //   form.resetFields();
     });
   };
 

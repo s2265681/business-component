@@ -8,7 +8,7 @@ function config(){
   }else{
       url ="http://127.0.0.1:2918" // 本地接口url 
   }
-//   url  ='http://rockshang.cn:3390'
+  url  ='http://rockshang.cn:3390'
 //   url="http://127.0.0.1:2918"
   return  url
 }
