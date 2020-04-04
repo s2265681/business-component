@@ -7,6 +7,9 @@ import Utils from "./utils/index";
 import BasicForm from "./component/basicForm";
 import BasicTable from "./component/BasicTable";
 import BasicModal from "./component/basicModal";
+import config from "./utils/setting";
+import { get, post } from "./utils/fetch";
+
 class Hello extends React.Component {
   constructor(props) {
     super(props);
@@ -15,62 +18,81 @@ class Hello extends React.Component {
       moreSearch: false, // 展示打开搜索栏
       title: "",
       modalVisible: false,
-      data: [{
-        id:1,
-        title:'火龙果',
-        author:'李白',
-        content:"百里对上对",
-        createtime:'2020-04-04',
-        img:'http://img1.imgtn.bdimg.com/it/u=1971269172,3262344581&fm=26&gp=0.jpg'
-      },{
-        id:2,
-        title:'白菜',
-        author:'嘟嘟',
-        content:"这是一句没有用的内容",
-        createtime:'2020-04-04',
-        img:'http://img1.imgtn.bdimg.com/it/u=1802937109,2901410344&fm=26&gp=0.jpg'
-      }],
+      data: [],
       everyData: {},
-      detail: false
+      detail: false,
+      imageUrl:''
     };
   }
 
+  componentDidMount() {
+    this.initList();
+  }
+
+  // 列表
+  initList = params => {
+    const list = get(`${config()}/api/blog/list?${stringify(params)}`);
+    list.then(res => {
+      this.setState({
+        data: res.data || []
+      });
+    });
+  };
+
   // 查询单个
   handleChange = id => {
-    this.setState(sta=>sta.everyData = sta.data.filter(e=>e.id===id)[0])
+    const list = get(`${config()}/api/blog/detail?id=${id}`);
+    list.then(res => {
+      this.setState({
+        everyData: res.data || []
+      });
+    });
   };
 
   // 删除
   handleDelete = (id, e) => {
     this.stopPropagation(e);
-    const {selectedRowKeys, data} = this.state;
-    if(selectedRowKeys.length===0){
-      message.error('请先选择')
-      return
-    }
-    const newData = data.filter(el=>el.id!==id)
-    this.setState({
-      data:newData,
-      selectedRowKeys:[]
-    },()=>{
-      message.success("删除成功");
-    })
+    const paramsObj = {
+      id,
+      author: "lisi"
+    };
+    const result = post(`${config()}/api/blog/del`, paramsObj);
+    result.then(res => {
+      if (res.data) {
+        message.success("删除成功");
+        this.initList();
+      } else {
+        message.error("删除失败");
+      }
+    });
   };
 
   // 新增
   hangleAddList = paramsObj => {
-    console.log(paramsObj,'paramsObj');
-    message.success("新增成功");
-    this.setState(sta=>sta.data.push({...paramsObj,id:this.state.data.length+1,createtime:'2020-06-01'}))
+    // paramsObj.image = "http://bl.7yue.pro/images/movie.8.png";
+    const result = post(`${config()}/api/blog/new`, paramsObj);
+    result.then(res => {
+      if (res.data) {
+        message.success("新增成功");
+        this.initList();
+      } else {
+        message.error("新增失败");
+      }
+    });
   };
 
   // 修改
   hangleUpdateList = (paramsObj, id) => {
-    console.log(paramsObj,id);
-    message.success("修改成功");
-    this.setState(sta=>{
-        sta.data = [...sta.data.filter(e=>e.id!==id),{...paramsObj,id}].sort((a,b)=>a.id-b.id)
-    })
+    // paramsObj.image = "http://bl.7yue.pro/images/movie.8.png";
+    const result = post(`${config()}/api/blog/update?id=${id}`, paramsObj);
+    result.then(res => {
+      if (res.code === 200) {
+        message.success("修改成功");
+        this.initList();
+      } else {
+        message.error("修改失败");
+      }
+    });
   };
 
   /**操作表格----------------------------------------- */
@@ -178,8 +200,8 @@ class Hello extends React.Component {
     const columns = [
       {
         title: "图片",
-        dataIndex: "img",
-        key: "img",
+        dataIndex: "image",
+        key: "image",
         render(t,r){
           if(!t)return
           return(
@@ -241,7 +263,7 @@ class Hello extends React.Component {
                 title="确定删除？"
                 onConfirm={p.handleDelete.bind(p, r.id)}
               >
-                <Button type="primary" onClick={(e)=>e.stopPropagation()}>删除</Button>
+                <Button type="primary">删除</Button>
               </Popconfirm>
             </div>
           );
@@ -295,10 +317,10 @@ class Hello extends React.Component {
   modalFormList = data => {
     // 处理一下回显图片格式 ： [url:'',uid:'']  
     // const data = new Data
-    // const uidTime = (new Date()).getTime();
-    // const picImg = data.img || ''
-    // const picList = [];
-    // picImg?picList.push({url:picImg,uid:uidTime}):[]
+    const uidTime = (new Date()).getTime();
+    const picImg = data.image || ''
+    const picList = [];
+    picImg?picList.push({url:picImg,uid:uidTime}):[]
     const modalFormList = [
       {
         type: "INPUT",
@@ -309,21 +331,13 @@ class Hello extends React.Component {
         initialValue: data.title
 
       },
-      // {
-      //   type: "UPLOAD",
-      //   label: "图片",
-      //   field: "img",
-      //   placeholder: "请输入图片",
-      //   width: "90%",
-      //   initialValue: picList||[]
-      // },
       {
-        type: "INPUT",
-        label: "图片地址",
-        field: "img",
-        placeholder: "请输入图片地址",
+        type: "UPLOAD",
+        label: "图片",
+        field: "image",
+        placeholder: "请输入图片",
         width: "90%",
-        initialValue: data.img || ''
+        initialValue: picList||[]
       },
       {
         type: "INPUT",
@@ -342,13 +356,27 @@ class Hello extends React.Component {
         width: "90%",
         initialValue: data.content
       }
+      // {
+      //   type: 'SELECT',
+      //   label: '电影',
+      //   field: 'movie',
+      //   placeholder: '请选择电影',
+      //   width: '90%',
+      //   list:[{
+      //     id:1,
+      //     lable:'泰坦尼克'
+      //   },{
+      //     id:2,
+      //     lable:'蜘蛛侠'
+      //   }],
+      //   name: 'lable',
+      // },
     ];
     return modalFormList;
   };
 
   // 提交modal
   handleSubmit = data => {
-    console.log(data,'//////data');
     const id = this.state.everyData && this.state.everyData.id;
     if (id) {
       this.hangleUpdateList(data, id);
@@ -374,7 +402,6 @@ class Hello extends React.Component {
   render() {
     const p = this;
     const { selectedRowKeys, data, everyData, detail } = this.state;
-    console.log(data,'data')
     const paginationProps = {
       // 分页
       // total,
@@ -429,6 +456,7 @@ class Hello extends React.Component {
           }}
           title={this.state.title}
           handlePicChange={this.handlePicChange}
+          imageUrl={this.state.imageUrl}
         />
       </div>
     );

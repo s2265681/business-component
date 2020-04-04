@@ -343,7 +343,7 @@ class BasicModal extends React.Component {
       if (err) {
         return;
       }
-      this.state.fileList?values.image = this.state.fileList : []
+      // this.state.fileList?values.image = this.state.fileList : []
       p.props.submit(values);
     });
   };
